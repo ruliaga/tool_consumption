@@ -6,5 +6,7 @@ def start_program():
   df = model.xlsx_reading(path)
   df = model.del_NAN(df)
   df = model.converting_table(df)
-  # df = model.reindex_dataframe(df)
+  df = model.add_folder_shifr_columns(df)
+  df = model.split_str(df)
+  
   return df
