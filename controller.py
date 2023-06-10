@@ -8,5 +8,7 @@ def start_program():
   df = model.converting_table(df)
   df = model.add_folder_shifr_columns(df)
   df = model.split_str(df)
+  df = model.tool_consumption(df)
+  df = model.create_xlsx(df)
   
   return df
