@@ -1,7 +1,7 @@
 import pandas as pd
 import glob 
 import os
-import re
+import view
 
 
 def get_xlsx_directory (): 
@@ -40,7 +40,7 @@ def converting_table(df):
         else:
             dict[df['Номенклатура'].values[i]] += df['Количество'].values[i]
     df = pd.DataFrame.from_dict(dict, orient='index').reset_index()
-    df.columns = ['Продукция', 'Количество']
+    df.columns = ['Номенклатура', 'Количество']
     for i in range(0,df.shape[0]):
         if pd.isna(df['Количество'].values[i]):
             df['Количество'].values[i] = 0
@@ -54,14 +54,14 @@ def add_folder_shifr_columns(df):
 def split_str(df):
     for i in range(0,df.shape[0]):
        # df['Папка'][i] = re.split('\s', str(df['Продукция'][i]))[0]
-        df['Папка'].values[i] = str(df['Продукция'].values[i]).split(' ',1)[0]
+        df['Папка'].values[i] = str(df['Номенклатура'].values[i]).split(' ',1)[0]
         if len(str(df['Папка'].values[i])) > 8:
-            df['Папка'].values[i] = str(df['Продукция'].values[i]).split('.',1)[0]
+            df['Папка'].values[i] = str(df['Номенклатура'].values[i]).split('.',1)[0]
     for i in range(0,df.shape[0]):
-        df['Шифр'].values[i] = str(df['Продукция'].values[i]).split(' ',1)[0]
+        df['Шифр'].values[i] = str(df['Номенклатура'].values[i]).split(' ',1)[0]
         if len(str(df['Шифр'].values[i])) < 9:
             try: # Вылетает исключение IndexError
-                df['Шифр'][i] = str(df['Продукция'].values[i]).split(' ',2)[0] + ' ' + str(df['Продукция'].values[i]).split(' ',2)[1]
+                df['Шифр'][i] = str(df['Номенклатура'].values[i]).split(' ',2)[0] + ' ' + str(df['Номенклатура'].values[i]).split(' ',2)[1]
             except IndexError as ie:
                 print(f'Index error')
                 
@@ -86,7 +86,15 @@ def tool_consumption(df):
                 df_kn = df_kn.reset_index(drop=True)
                 df_kn.columns = df_kn.iloc[0]
                 df_kn = df_kn[1:]
-                df_kn = df_kn[['Имя инструмента','Расход инстр. На 1-ну дет.']]
+                try:
+                    df_kn = df_kn[['Имя инструмента','Расход инстр. На 1-ну дет.']]
+                except KeyError as ke:
+                    view.window_keyError(xlsx_directory[i])
+                    continue
+                for i in range(0,df_kn.shape[0]):
+                    if pd.isna(df_kn['Расход инстр. На 1-ну дет.'].values[i]):
+                        print(df_kn['Имя инструмента'].values[i], " ", df_kn['Расход инстр. На 1-ну дет.'].values[i])
+                        view.window_ColumnValuesNanError(xlsx_directory[i])
                 df_kn.insert(2,'Шифр', shifr)
                 df_kn.insert(3,'Количество деталей', kol_vo)
                 df_kn.insert(4,'Суммарный расход', kol_vo*df_kn['Расход инстр. На 1-ну дет.'])

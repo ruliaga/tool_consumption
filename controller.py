@@ -1,5 +1,5 @@
 import model
-
+import view
 
 def start_program():
   path = model.get_xlsx_directory()
@@ -10,5 +10,6 @@ def start_program():
   df = model.split_str(df)
   df = model.tool_consumption(df)
   df = model.create_xlsx(df)
+  
   
   return df
