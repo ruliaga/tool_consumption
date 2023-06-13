@@ -1,7 +1,9 @@
 import model
 import view
 
+
 def start_program():
+  
   path = model.get_xlsx_directory()
   df = model.xlsx_reading(path)
   df = model.del_NAN(df)

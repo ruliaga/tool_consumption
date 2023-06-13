@@ -2,10 +2,11 @@ import pandas as pd
 import glob 
 import os
 import view
-
+import globalVar
 
 def get_xlsx_directory (): 
-    path = os.path.dirname(os.path.realpath(__file__)) #функция читает текущее расположение файла py
+    #path = os.path.dirname(os.path.realpath(__file__)) #функция читает текущее расположение файла py
+    path = os.getcwd()
     xlsx_directory = glob.glob(path + "/*.xlsx") #находит файлы xlsx и создает список из названий
     print(xlsx_directory)
     return xlsx_directory #возвращает этот список
@@ -15,6 +16,7 @@ def get_xlsx_directory ():
 def xlsx_reading(xlsx_directory): #функция создает датафрейм из файла xlsx
     df = pd.read_excel(str(xlsx_directory[0]),sheet_name='TDSheet')
     return df
+   
 
 def create_xlsx(df):
     df.to_excel('Tool_consumption.xlsx')
@@ -69,6 +71,7 @@ def split_str(df):
 
 def tool_consumption(df):
     tool_dict = {}
+    #path = 'R:\\dmg\\MSCDATA\\NC program'
     path = 'C:\\Users\\rulia\\Desktop\\ms_data'
     for i in range(0,df.shape[0]):
         folder = df['Папка'].values[i]
@@ -78,6 +81,7 @@ def tool_consumption(df):
         if len(xlsx_directory)!=0:
             for i in range(0, len(xlsx_directory)):
                 print(xlsx_directory[i])
+                globalVar.count_kn +=1
                 print('Количество деталей = ' + str(kol_vo))
                 df_kn = pd.read_excel(f'{str(xlsx_directory[i])}')
                 kadrNo_str_index = df_kn.index[df_kn.isin(['Кадр №']).any(axis=1)].values[0]
