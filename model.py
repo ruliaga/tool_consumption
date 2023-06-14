@@ -3,6 +3,7 @@ import glob
 import os
 import view
 import globalVar
+import openpyxl
 
 def get_xlsx_directory (): 
     #path = os.path.dirname(os.path.realpath(__file__)) #функция читает текущее расположение файла py
@@ -71,8 +72,8 @@ def split_str(df):
 
 def tool_consumption(df):
     tool_dict = {}
-    #path = 'R:\\dmg\\MSCDATA\\NC program'
-    path = 'C:\\Users\\rulia\\Desktop\\ms_data'
+    path = 'R:\\dmg\\MSCDATA\\NC program'
+    #path = 'C:\\Users\\rulia\\Desktop\\ms_data'
     for i in range(0,df.shape[0]):
         folder = df['Папка'].values[i]
         shifr = df['Шифр'].values[i]
@@ -80,10 +81,13 @@ def tool_consumption(df):
         xlsx_directory = glob.glob(path + f"\\{folder}\\{shifr}*\\*.xlsx")
         if len(xlsx_directory)!=0:
             for i in range(0, len(xlsx_directory)):
+              if '~$' in xlsx_directory[i]:
+                continue
+              else:
                 print(xlsx_directory[i])
                 globalVar.count_kn +=1
                 print('Количество деталей = ' + str(kol_vo))
-                df_kn = pd.read_excel(f'{str(xlsx_directory[i])}')
+                df_kn = pd.read_excel(f'{str(xlsx_directory[i])}',engine='openpyxl')
                 kadrNo_str_index = df_kn.index[df_kn.isin(['Кадр №']).any(axis=1)].values[0]
                 df_kn = df_kn.tail(-kadrNo_str_index)
                 df_kn = df_kn.drop(df_kn.tail(2).index)
@@ -92,6 +96,7 @@ def tool_consumption(df):
                 df_kn = df_kn[1:]
                 try:
                     df_kn = df_kn[['Имя инструмента','Расход инстр. На 1-ну дет.']]
+                    df_kn['Расход инстр. На 1-ну дет.'] = df_kn['Расход инстр. На 1-ну дет.'].astype(float)
                 except KeyError as ke:
                     view.window_keyError(xlsx_directory[i])
                     continue
@@ -101,7 +106,7 @@ def tool_consumption(df):
                         view.window_ColumnValuesNanError(xlsx_directory[i])
                 df_kn.insert(2,'Шифр', shifr)
                 df_kn.insert(3,'Количество деталей', kol_vo)
-                df_kn.insert(4,'Суммарный расход', kol_vo*df_kn['Расход инстр. На 1-ну дет.'])
+                df_kn.insert(4,'Суммарный расход', float(kol_vo)*df_kn['Расход инстр. На 1-ну дет.'])
                 for i in range(0, df_kn.shape[0]):
                     if str(df_kn['Имя инструмента'].values[i]) not in tool_dict:
                         tool_dict[df_kn['Имя инструмента'].values[i]] = df_kn['Суммарный расход'].values[i]
