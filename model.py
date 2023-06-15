@@ -19,8 +19,8 @@ def xlsx_reading(xlsx_directory): #функция создает датафре�
     return df
    
 
-def create_xlsx(df):
-    df.to_excel('Tool_consumption.xlsx')
+def create_xlsx(df, message):
+    df.to_excel(message)
 
 def reindex_dataframe(df):
     df = df.reset_index(drop=True)
@@ -66,8 +66,7 @@ def split_str(df):
             try: # Вылетает исключение IndexError
                 df['Шифр'][i] = str(df['Номенклатура'].values[i]).split(' ',2)[0] + ' ' + str(df['Номенклатура'].values[i]).split(' ',2)[1]
             except IndexError as ie:
-                print(f'Index error')
-                
+                print(f'Index error')            
     return df    
 
 def tool_consumption(df):
@@ -78,13 +77,17 @@ def tool_consumption(df):
         folder = df['Папка'].values[i]
         shifr = df['Шифр'].values[i]
         kol_vo = df['Количество'].values[i]
+        with open("sample.txt", "a") as file_object:
+                    file_object.write(df['Шифр'].values[i] + '\n')
         xlsx_directory = glob.glob(path + f"\\{folder}\\{shifr}*\\*.xlsx")
-        if len(xlsx_directory)!=0:
-            for i in range(0, len(xlsx_directory)):
+        # if len(xlsx_directory)!=0:
+        for i in range(0, len(xlsx_directory)):
               if '~$' in xlsx_directory[i]:
                 continue
               else:
                 print(xlsx_directory[i])
+                with open("sample.txt", "a") as file_object:
+                    file_object.write('*******' + xlsx_directory[i] + '\n')
                 globalVar.count_kn +=1
                 print('Количество деталей = ' + str(kol_vo))
                 df_kn = pd.read_excel(f'{str(xlsx_directory[i])}',engine='openpyxl')
@@ -103,7 +106,10 @@ def tool_consumption(df):
                 for i in range(0,df_kn.shape[0]):
                     if pd.isna(df_kn['Расход инстр. На 1-ну дет.'].values[i]):
                         print(df_kn['Имя инструмента'].values[i], " ", df_kn['Расход инстр. На 1-ну дет.'].values[i])
-                        view.window_ColumnValuesNanError(xlsx_directory[i])
+                        try:
+                            view.window_ColumnValuesNanError(xlsx_directory[i])
+                        except IndexError as ie:
+                            continue
                 df_kn.insert(2,'Шифр', shifr)
                 df_kn.insert(3,'Количество деталей', kol_vo)
                 df_kn.insert(4,'Суммарный расход', float(kol_vo)*df_kn['Расход инстр. На 1-ну дет.'])
