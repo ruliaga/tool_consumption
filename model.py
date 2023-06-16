@@ -72,7 +72,7 @@ def split_str(df):
 def tool_consumption(df):
     tool_dict = {}
     path = 'R:\\dmg\\MSCDATA\\NC program'
-    #path = 'C:\\Users\\rulia\\Desktop\\ms_data'
+    # path = 'C:\\Users\\rulia\\Desktop\\ms_data'
     for i in range(0,df.shape[0]):
         folder = df['Папка'].values[i]
         shifr = df['Шифр'].values[i]
@@ -80,7 +80,8 @@ def tool_consumption(df):
         with open("sample.txt", "a") as file_object:
                     file_object.write(df['Шифр'].values[i] + '\n')
         xlsx_directory = glob.glob(path + f"\\{folder}\\{shifr}*\\*.xlsx")
-        # if len(xlsx_directory)!=0:
+        if len(xlsx_directory)==0:
+            xlsx_directory = glob.glob(path + f"\\{folder}\\*\\{shifr}*\\*.xlsx")
         for i in range(0, len(xlsx_directory)):
               if '~$' in xlsx_directory[i]:
                 continue
@@ -115,9 +116,23 @@ def tool_consumption(df):
                 df_kn.insert(4,'Суммарный расход', float(kol_vo)*df_kn['Расход инстр. На 1-ну дет.'])
                 for i in range(0, df_kn.shape[0]):
                     if str(df_kn['Имя инструмента'].values[i]) not in tool_dict:
-                        tool_dict[df_kn['Имя инструмента'].values[i]] = df_kn['Суммарный расход'].values[i]
+                        try:
+                            tool_dict[df_kn['Имя инструмента'].values[i]] = round((float(df_kn['Суммарный расход'].values[i])),3)
+                        except TypeError as te:
+                            try:
+                                view.window_ColumnValuesNanError(xlsx_directory[i])
+                            except IndexError as ie:
+                                continue
+                            continue
                     else:
-                        tool_dict[df_kn['Имя инструмента'].values[i]] += df_kn['Суммарный расход'].values[i]
+                        try:
+                            tool_dict[df_kn['Имя инструмента'].values[i]] += round((float(df_kn['Суммарный расход'].values[i])),3)
+                        except TypeError as te:
+                            try:
+                                view.window_ColumnValuesNanError(xlsx_directory[i])
+                            except IndexError as ie:
+                                continue
+                            continue
                 df_tool = pd.DataFrame.from_dict(tool_dict, orient='index').reset_index()
                 df_tool.columns = ['Имя инструмента', 'Суммарный расход']
                 
