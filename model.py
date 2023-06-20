@@ -62,33 +62,41 @@ def split_str(df):
             df['Папка'].values[i] = str(df['Номенклатура'].values[i]).split('.',1)[0]
     for i in range(0,df.shape[0]):
         df['Шифр'].values[i] = str(df['Номенклатура'].values[i]).split(' ',1)[0]
+        if str(df['Папка'].values[i])=='ПК':
+                df['Шифр'].values[i] = str(df['Номенклатура'].values[i]).split(' ',3)[1] + ' ' + str(df['Номенклатура'].values[i]).split(' ',3)[2]       
         if len(str(df['Шифр'].values[i])) < 9:
             try: # Вылетает исключение IndexError
-                df['Шифр'][i] = str(df['Номенклатура'].values[i]).split(' ',2)[0] + ' ' + str(df['Номенклатура'].values[i]).split(' ',2)[1]
+                df['Шифр'].values[i]= str(df['Номенклатура'].values[i]).split(' ',2)[0] + ' ' + str(df['Номенклатура'].values[i]).split(' ',2)[1]
             except IndexError as ie:
-                print(f'Index error')            
+                print(f'Index error')  
+    print(df)
     return df    
 
 def tool_consumption(df):
     tool_dict = {}
     path = 'R:\\dmg\\MSCDATA\\NC program'
-    # path = 'C:\\Users\\rulia\\Desktop\\ms_data'
+    #path = 'C:\\Users\\rulia\\Desktop\\ms_data'
     for i in range(0,df.shape[0]):
         folder = df['Папка'].values[i]
         shifr = df['Шифр'].values[i]
         kol_vo = df['Количество'].values[i]
-        with open("sample.txt", "a") as file_object:
-                    file_object.write(df['Шифр'].values[i] + '\n')
+        nomenklatura = df['Номенклатура'].values[i]
+        with open("Descryption.txt", "a", encoding='utf-16') as file_object:
+                    file_object.write('\n' + '*****************************************************\n\n')
+                    file_object.write(str(nomenklatura) + " " + str(kol_vo) + '      ' + f'Папка: {str(folder)}' + '\n')
         xlsx_directory = glob.glob(path + f"\\{folder}\\{shifr}*\\*.xlsx")
         if len(xlsx_directory)==0:
-            xlsx_directory = glob.glob(path + f"\\{folder}\\*\\{shifr}*\\*.xlsx")
+            xlsx_directory = glob.glob(path + f"\\{folder}\\*\\{shifr}*\\*.xlsx")   
+        if len(xlsx_directory)==0 and folder=='РЦО':
+            xlsx_directory = glob.glob(path + f"\\{folder}\\*\\*\\{shifr}*\\*.xlsx")
         for i in range(0, len(xlsx_directory)):
               if '~$' in xlsx_directory[i]:
                 continue
               else:
                 print(xlsx_directory[i])
-                with open("sample.txt", "a") as file_object:
-                    file_object.write('*******' + xlsx_directory[i] + '\n')
+                with open("Descryption.txt", "a", encoding='utf-16') as file_object:
+                    file_object.write('\n\n_____________Чтение_КН________________\n')
+                    file_object.write('\n    ' + xlsx_directory[i] + '\n')
                 globalVar.count_kn +=1
                 print('Количество деталей = ' + str(kol_vo))
                 df_kn = pd.read_excel(f'{str(xlsx_directory[i])}',engine='openpyxl')
@@ -104,6 +112,9 @@ def tool_consumption(df):
                 except KeyError as ke:
                     view.window_keyError(xlsx_directory[i])
                     continue
+                except ValueError as ve:
+                    view.window_ColumnValuesNanError(xlsx_directory[i])
+                    continue
                 for i in range(0,df_kn.shape[0]):
                     if pd.isna(df_kn['Расход инстр. На 1-ну дет.'].values[i]):
                         print(df_kn['Имя инструмента'].values[i], " ", df_kn['Расход инстр. На 1-ну дет.'].values[i])
@@ -114,6 +125,14 @@ def tool_consumption(df):
                 df_kn.insert(2,'Шифр', shifr)
                 df_kn.insert(3,'Количество деталей', kol_vo)
                 df_kn.insert(4,'Суммарный расход', float(kol_vo)*df_kn['Расход инстр. На 1-ну дет.'])
+                
+                for i in range(0,df_kn.shape[0]):
+                    name_tool = str(df_kn['Имя инструмента'].values[i])
+                    sum_consump = float(df_kn['Суммарный расход'].values[i])
+                    with open("Descryption.txt", "a", encoding='utf-16') as file_object:
+                        file_object.write('          ' + f'{name_tool}: +' + f'{sum_consump}\n')
+                
+                
                 for i in range(0, df_kn.shape[0]):
                     if str(df_kn['Имя инструмента'].values[i]) not in tool_dict:
                         try:
@@ -135,7 +154,10 @@ def tool_consumption(df):
                             continue
                 df_tool = pd.DataFrame.from_dict(tool_dict, orient='index').reset_index()
                 df_tool.columns = ['Имя инструмента', 'Суммарный расход']
-                
+                with open("Descryption.txt", "a", encoding='utf-16') as file_object:
+                        file_object.write('\n-------------Обновление-справочника----------\n')
+                        file_object.write(str(df_tool))
+               
                 
                 print(df_tool)
              
