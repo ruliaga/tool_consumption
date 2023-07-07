@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkinter.messagebox as mb
 import sys
+import globalVar
+
 
 
 def window_keyError(directory):
@@ -20,9 +22,31 @@ def window_ColumnValuesNanError(directory):
     message=f'Ошибка чтения файла {directory}. значение в столбце "Расход инстр. На 1-ну дет." не заполнено \n. Продолжить выполнение программы?\n')
 
     if answer:
-        print('ok')
+        print('\n')
     else:
-        print('Process is over by user....')
+        print('Process is over by user')
+        sys.exit()
+
+def window_dict_tool_sum_error(directory):
+    answer = mb.askyesno(
+    title="Tool_consumption_v1.1", 
+    message=f'{directory}  - Tool {globalVar.CURRENT_TOOL}. Ошибка заполнения справочника при суммировании расхода\n')    
+    
+    if answer:
+        print('\n')
+    else:
+        print('Process is over by user')
+        sys.exit()
+
+def window_dict_tool_new_item (directory):
+    answer = mb.askyesno(
+    title="Tool_consumption_v1.1", 
+    message=f'{directory}  - Tool {globalVar.CURRENT_TOOL}. Ошибка заполнения справочника при добавлении нового инструмента\n')    
+    
+    if answer:
+        print('\n')
+    else:
+        print('Process is over by user')
         sys.exit()
 
 def end_message(kn_count):

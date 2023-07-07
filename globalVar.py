@@ -1,1 +1,3 @@
-count_kn = 0
+COUNT_KN = 0
+COUNT_NOMENKLATURA = 0
+CURRENT_TOOL = ''
