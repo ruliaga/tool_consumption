@@ -51,3 +51,9 @@ def window_dict_tool_new_item (directory):
 
 def end_message(kn_count):
     mb.showinfo(title='Tool_consumption_v1.1', message=f'Обработано {kn_count} файлов xlsx.')
+
+def start_error_message():
+    mb.showinfo(title='Tool_consumption_v1.1', message=f'Удалите скрытые строки в файле xlsx и преобразуйте диапазон данных в таблицу.')
+
+def net_kn_error_message():
+    mb.showinfo(title='Tool_consumption_v1.1', message=f'Карты наладки для данной заявки не найдены.')
