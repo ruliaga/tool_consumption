@@ -57,3 +57,6 @@ def start_error_message():
 
 def net_kn_error_message():
     mb.showinfo(title='Tool_consumption_v1.1', message=f'Карты наладки для данной заявки не найдены.')
+
+def net_zayavok_error_message():
+    mb.showinfo(title='Tool_consumption_v1.1', message=f'Скопируйте файл с заявками в директорию программы.')

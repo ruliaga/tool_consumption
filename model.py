@@ -19,6 +19,8 @@ def xlsx_reading(xlsx_directory): #функция создает датафре�
         df = pd.read_excel(str(xlsx_directory[0]),sheet_name='TDSheet')
     except KeyError:
         view.start_error_message()
+    except IndexError:
+        view.net_zayavok_error_message()
     return df
    
 
