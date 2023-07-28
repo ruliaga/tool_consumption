@@ -124,7 +124,7 @@ def tool_consumption(df):
                 except KeyError as ke:
                     view.window_keyError(xlsx_directory[i])
                     with open("Descryption.txt", "a", encoding='utf-16') as file_object:
-                        file_object.write(f'TypeError: {xlsx_directory} - неправильно оформлена КН')
+                        file_object.write(f'TypeError: {xlsx_directory[i]} - неправильно оформлена КН')
                     continue
                 except ValueError as ve:
                     view.window_ColumnValuesNanError(xlsx_directory[i])
