@@ -186,61 +186,76 @@ def tool_consumption(df):
         view.net_kn_error_message()
 
 
-# С изменением начальных данных
+# С изменением начальных данных (через универсальный отчет)
 
-def get_df1(df):
-    df1 = df[['Заказ покупателя.Номер','Номенклатура.Наименование','Количество']]
-    df1 = df1.drop_duplicates(subset = ['Заказ покупателя.Номер'], keep = 'first')
+# def get_df1(df):
+#     df1 = df[['Заказ покупателя.Номер','Номенклатура.Наименование','Количество']]
+#     df1 = df1.drop_duplicates(subset = ['Заказ покупателя.Номер'], keep = 'first')
+#     dict = {}
+#     for i in range(0, df1.shape[0]):
+#         if str(df1['Номенклатура.Наименование'].values[i]) not in dict:
+#             dict[df1['Номенклатура.Наименование'].values[i]] = df1['Количество'].values[i]
+#         else:
+#             dict[df1['Номенклатура.Наименование'].values[i]] += df1['Количество'].values[i]
+#     df1 = pd.DataFrame.from_dict(dict, orient='index').reset_index()
+#     df1.columns = ['Номенклатура', 'Количество']
+#     return df1
+
+# def get_df2(df):
+#     df2 = df[['Номенклатура.Наименование','Спецификация.Исходные комплектующие.Номенклатура.Наименование','Спецификация.Исходные комплектующие.Количество','Спецификация.Исходные комплектующие.Вид воспроизводства']]
+#     df2 = df2.dropna(axis=0,how='any')
+#     df2 = df2.drop_duplicates(subset = ['Спецификация.Исходные комплектующие.Номенклатура.Наименование'], keep = 'first')
+#     df2 = df2[(df2['Спецификация.Исходные комплектующие.Вид воспроизводства'] == 'Производство') | pd.isna(df2['Спецификация.Исходные комплектующие.Вид воспроизводства'])]
+#     df2 = df2.reset_index()
+#     df2 = df2[['Номенклатура.Наименование','Спецификация.Исходные комплектующие.Номенклатура.Наименование','Спецификация.Исходные комплектующие.Количество']]
+#     return df2
+
+# def get_df3(df1, df2):
+#     df2.insert(3, 'Количество.Сборка', 0)
+#     for i in range(0,df1.shape[0]):
+#         for j in range(0,df2.shape[0]):
+#             if str(df2['Номенклатура.Наименование'].values[j]) == str(df1['Номенклатура'].values[i]):
+#                if not pd.isna(df1['Количество'].values[i]):
+#                     df2['Количество.Сборка'].values[j] = df1['Количество'].values[i]
+#                else: 
+#                     df2['Количество.Сборка'].values[j] = 0
+#     df2.insert(4,'Общее количество', df2['Спецификация.Исходные комплектующие.Количество']*df2['Количество.Сборка'])
+#     df3 = df2[['Спецификация.Исходные комплектующие.Номенклатура.Наименование','Количество.Сборка','Общее количество']]
+#     df3 = df3[df3['Общее количество'] !=0]
+#     dict = {}
+#     for i in range(0, df3.shape[0]):
+#         if str(df3['Спецификация.Исходные комплектующие.Номенклатура.Наименование'].values[i]) not in dict:
+#             dict[df3['Спецификация.Исходные комплектующие.Номенклатура.Наименование'].values[i]] = df3['Общее количество'].values[i]
+#         else:
+#             dict[df3['Спецификация.Исходные комплектующие.Номенклатура.Наименование'].values[i]] += df3['Общее количество'].values[i]
+#     for i in range(0, df1.shape[0]):
+#         if str(df1['Номенклатура'].values[i]) not in dict:
+#             dict[df1['Номенклатура'].values[i]] = df1['Количество'].values[i]
+#         else:
+#             dict[df1['Номенклатура'].values[i]] += df1['Количество'].values[i]
+#     df3 = pd.DataFrame.from_dict(dict, orient='index').reset_index()
+#     df3.columns = ['Номенклатура', 'Количество']
+#     with open("Descryption.txt", "a", encoding='utf-16') as file_object:
+#             file_object.write('------------Список-номенклатуры-для-поиска:--------------------------------------------------------\n\n')
+#     for i in range(0,df3.shape[0]):
+#         name_nomenklatura = str(df3['Номенклатура'].values[i])
+#         kolichestvo = float(df3['Количество'].values[i])
+#         with open("Descryption.txt", "a", encoding='utf-16') as file_object:
+#             file_object.write(f'{name_nomenklatura}     Количество: ' + f'{kolichestvo}'+' шт\n\n')
+
+#     return df3
+
+
+# датафрэйм формируется из отчета "Планирование производства и закупок"
+
+def get_df_planirovanie(df):
+    df = df[['Номенклатура','Количество']]
     dict = {}
-    for i in range(0, df1.shape[0]):
-        if str(df1['Номенклатура.Наименование'].values[i]) not in dict:
-            dict[df1['Номенклатура.Наименование'].values[i]] = df1['Количество'].values[i]
+    for i in range(0, df.shape[0]):
+        if str(df['Номенклатура'].values[i]) not in dict:
+            dict[df['Номенклатура'].values[i]] = df['Количество'].values[i]
         else:
-            dict[df1['Номенклатура.Наименование'].values[i]] += df1['Количество'].values[i]
-    df1 = pd.DataFrame.from_dict(dict, orient='index').reset_index()
-    df1.columns = ['Номенклатура', 'Количество']
-    return df1
-
-def get_df2(df):
-    df2 = df[['Номенклатура.Наименование','Спецификация.Исходные комплектующие.Номенклатура.Наименование','Спецификация.Исходные комплектующие.Количество','Спецификация.Исходные комплектующие.Вид воспроизводства']]
-    df2 = df2.dropna(axis=0,how='any')
-    df2 = df2.drop_duplicates(subset = ['Спецификация.Исходные комплектующие.Номенклатура.Наименование'], keep = 'first')
-    df2 = df2[(df2['Спецификация.Исходные комплектующие.Вид воспроизводства'] == 'Производство') | pd.isna(df2['Спецификация.Исходные комплектующие.Вид воспроизводства'])]
-    df2 = df2.reset_index()
-    df2 = df2[['Номенклатура.Наименование','Спецификация.Исходные комплектующие.Номенклатура.Наименование','Спецификация.Исходные комплектующие.Количество']]
-    return df2
-
-def get_df3(df1, df2):
-    df2.insert(3, 'Количество.Сборка', 0)
-    for i in range(0,df1.shape[0]):
-        for j in range(0,df2.shape[0]):
-            if str(df2['Номенклатура.Наименование'].values[j]) == str(df1['Номенклатура'].values[i]):
-               if not pd.isna(df1['Количество'].values[i]):
-                    df2['Количество.Сборка'].values[j] = df1['Количество'].values[i]
-               else: 
-                    df2['Количество.Сборка'].values[j] = 0
-    df2.insert(4,'Общее количество', df2['Спецификация.Исходные комплектующие.Количество']*df2['Количество.Сборка'])
-    df3 = df2[['Спецификация.Исходные комплектующие.Номенклатура.Наименование','Количество.Сборка','Общее количество']]
-    df3 = df3[df3['Общее количество'] !=0]
-    dict = {}
-    for i in range(0, df3.shape[0]):
-        if str(df3['Спецификация.Исходные комплектующие.Номенклатура.Наименование'].values[i]) not in dict:
-            dict[df3['Спецификация.Исходные комплектующие.Номенклатура.Наименование'].values[i]] = df3['Общее количество'].values[i]
-        else:
-            dict[df3['Спецификация.Исходные комплектующие.Номенклатура.Наименование'].values[i]] += df3['Общее количество'].values[i]
-    for i in range(0, df1.shape[0]):
-        if str(df1['Номенклатура'].values[i]) not in dict:
-            dict[df1['Номенклатура'].values[i]] = df1['Количество'].values[i]
-        else:
-            dict[df1['Номенклатура'].values[i]] += df1['Количество'].values[i]
-    df3 = pd.DataFrame.from_dict(dict, orient='index').reset_index()
-    df3.columns = ['Номенклатура', 'Количество']
-    with open("Descryption.txt", "a", encoding='utf-16') as file_object:
-            file_object.write('------------Список-номенклатуры-для-поиска:--------------------------------------------------------\n\n')
-    for i in range(0,df3.shape[0]):
-        name_nomenklatura = str(df3['Номенклатура'].values[i])
-        kolichestvo = float(df3['Количество'].values[i])
-        with open("Descryption.txt", "a", encoding='utf-16') as file_object:
-            file_object.write(f'{name_nomenklatura}     Количество: ' + f'{kolichestvo}'+' шт\n\n')
-
-    return df3
+            dict[df['Номенклатура'].values[i]] += df['Количество'].values[i]
+    df = pd.DataFrame.from_dict(dict, orient='index').reset_index()
+    df.columns = ['Номенклатура', 'Количество']
+    return df
